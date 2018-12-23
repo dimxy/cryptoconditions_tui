@@ -61,6 +61,17 @@ def main():
                         print("Please connect to KMD daemon first!")
                         input("Press [Enter] to continue...")
                         break
+            elif list(menuItems[int(choice)].keys())[0] == "Execute gateways deposit":
+                while True:
+                    try:
+                        list(menuItems[int(choice)].values())[0](rpc_connection_kmd, rpc_connection)
+                        break
+                    except Exception as e:
+                        print(e)
+                        print("Please connect to KMD daemon first!")
+                        input("Press [Enter] to continue...")
+                        break
+
             else:
                 list(menuItems[int(choice)].values())[0](rpc_connection)
         except (ValueError, IndexError):

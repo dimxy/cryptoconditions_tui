@@ -479,20 +479,24 @@ def gateways_send_kmd(rpc_connection):
      input("Press [Enter] to continue...")
 
 
-def gateways_deposit_tui(rpc_connection):
+def gateways_deposit_tui(rpc_connection_kmd, rpc_connection):
     while True:
         bind_txid = input("Input your gateway bind txid: ")
         coin_name = input("Input your external coin ticker (e.g. KMD): ")
         coin_txid = input("Input your deposit txid: ")
         dest_pub = input("Input pubkey which claim deposit: ")
         amount = input("Input amount of your deposit: ")
-        height = rpc_connection.getrawtransaction(coin_txid, 1)["height"]
-        deposit_hex = rpc_connection.getrawtransaction(coin_txid, 1)["hex"]
+        height = rpc_connection_kmd.getrawtransaction(coin_txid, 1)["height"]
+        # print("height=" + str(height) + "\n")
+        deposit_kmd_hex = rpc_connection_kmd.getrawtransaction(coin_txid, 1)["hex"]
+        # print("coin_tx=" + deposit_kmd_hex + "\n")
         claim_vout = "0"
         proof_sending_block = "[\"{}\"]".format(coin_txid)
-        proof = rpc_connection.gettxoutproof(json.loads(proof_sending_block))
-        deposit_hex = rpclib.gateways_deposit(rpc_connection, bind_txid, height, coin_name, \
-                         coin_txid, claim_vout, deposit_hex, proof, dest_pub, amount)
+        proof = rpc_connection_kmd.gettxoutproof(json.loads(proof_sending_block))
+        # print("proof " + str(proof) + "\n")
+        deposit_hex = rpclib.gateways_deposit(rpc_connection, bind_txid, str(height), coin_name, \
+                         coin_txid, claim_vout, deposit_kmd_hex, proof, dest_pub, amount)
+        print("deposit_hex=" + str(deposit_hex) + "\n")
         deposit_txid = rpclib.sendrawtransaction(rpc_connection, deposit_hex["hex"])
         print(deposit_txid)
         input("Press [Enter] to continue...")
@@ -520,7 +524,7 @@ def gateways_withdrawal_tui(rpc_connection):
         withdraw_pub = input("Input pubkey to which you want to withdraw: ")
         amount = input("Input amount of withdrawal: ")
         withdraw_hex = rpclib.gateways_withdraw(rpc_connection, bind_txid, coin_name, withdraw_pub, amount)
-        withdraw_txid = rpclib.sendrawtransaction(withdraw_hex["hex"])
+        withdraw_txid = rpclib.sendrawtransaction(rpc_connection, withdraw_hex["hex"])
         print(withdraw_txid)
         input("Press [Enter] to continue...")
         break
